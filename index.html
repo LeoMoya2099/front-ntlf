@@ -16,6 +16,9 @@
                 <button id="crear-cuenta" onclick="window.location.href='crear_cuenta.html'">Crear cuenta</button>
                 <button id="entrar-cuenta" onclick="window.location.href='entrar.html'">Entrar a la cuenta</button>
                 <button id="borrar-cuenta" onclick="window.location.href='borrar.html'">Borrar una cuenta</button>
+                
+                <button id="login-google" onclick="window.location.href='/auth/google'">Iniciar sesión con Google</button>
+                <button id="logout" onclick="window.location.href='/logout'">Cerrar sesión</button>
 
                 <h1>Precio del Dólar en MXN</h1>
                 <p id="precioDolar">Cargando...</p>
@@ -46,7 +49,6 @@
         document.getElementById("fechaActualizacion").innerText = "";
     }
 }
-
 
                     obtenerPrecioDolar(); // Llamar la función cuando se cargue la página
                 </script>
