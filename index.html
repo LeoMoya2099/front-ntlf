@@ -3,7 +3,6 @@
 <head>
     <!-- Ruta actualizada para el archivo CSS -->
     <link rel="stylesheet" type="text/css" href="/styles.css">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BCG</title>
@@ -13,51 +12,97 @@
         <div class="container">
             <h1>Bienvenido al banco BCG</h1>
             <div class="opciones">
+                <!-- Botones de autenticación -->
                 <button id="crear-cuenta" onclick="window.location.href='crear_cuenta.html'">Crear cuenta</button>
                 <button id="entrar-cuenta" onclick="window.location.href='entrar.html'">Entrar a la cuenta</button>
                 <button id="borrar-cuenta" onclick="window.location.href='borrar.html'">Borrar una cuenta</button>
-                
-                <button id="login-google" onclick="window.location.href='/auth/google'">Iniciar sesión con Google</button>
-                <button id="logout" onclick="window.location.href='/logout'">Cerrar sesión</button>
 
+                <!-- Botones de Google OAuth -->
+                <button id="login-google" onclick="window.location.href='/auth/google'">Iniciar sesión con Google</button>
+                <button id="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+
+                <!-- Información del usuario autenticado -->
+                <div id="user-info" style="display: none;">
+                    <h2>Información del usuario</h2>
+                    <p id="user-name"></p>
+                    <p id="user-email"></p>
+                </div>
+
+                <!-- Precio del dólar -->
                 <h1>Precio del Dólar en MXN</h1>
                 <p id="precioDolar">Cargando...</p>
                 <p id="fechaActualizacion"></p>
-
-                <script>
-                    async function obtenerPrecioDolar() {
-    try {
-        const API_KEY = "929be70cef5bb0c8b3d28a0c";
-        const response = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
-        const data = await response.json();
-
-        if (data.result === "success") {
-            // Obtener el valor de 1 USD en MXN desde el objeto conversion_rates
-            const precioDolar = data.conversion_rates.MXN;
-            
-            // Convertir el timestamp de la última actualización a una fecha legible
-            const ultimaActualizacion = new Date(data.time_last_update_utc).toLocaleString();
-
-            document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
-            document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
-        } else {
-            document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-            document.getElementById("fechaActualizacion").innerText = "";
-        }
-    } catch (error) {
-        document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-        document.getElementById("fechaActualizacion").innerText = "";
-    }
-}
-
-                    obtenerPrecioDolar(); // Llamar la función cuando se cargue la página
-                </script>
-
             </div>
         </div>
     </main>
 
     <!-- Ruta actualizada para el archivo JavaScript -->
     <script src="/index.js"></script>
+    <script>
+        // Función para obtener el precio del dólar
+        async function obtenerPrecioDolar() {
+            try {
+                const API_KEY = "929be70cef5bb0c8b3d28a0c";
+                const response = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
+                const data = await response.json();
+
+                if (data.result === "success") {
+                    const precioDolar = data.conversion_rates.MXN;
+                    const ultimaActualizacion = new Date(data.time_last_update_utc).toLocaleString();
+
+                    document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
+                    document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
+                } else {
+                    document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
+                    document.getElementById("fechaActualizacion").innerText = "";
+                }
+            } catch (error) {
+                document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
+                document.getElementById("fechaActualizacion").innerText = "";
+            }
+        }
+
+        // Función para obtener la información del usuario autenticado
+        async function obtenerUsuario() {
+            try {
+                const response = await fetch('/user');
+                const data = await response.json();
+
+                if (data.user) {
+                    // Mostrar información del usuario
+                    document.getElementById("user-info").style.display = "block";
+                    document.getElementById("user-name").innerText = `Nombre: ${data.user.nombre} ${data.user.apellido}`;
+                    document.getElementById("user-email").innerText = `Email: ${data.user.email}`;
+
+                    // Ocultar el botón de iniciar sesión
+                    document.getElementById("login-google").style.display = "none";
+                } else {
+                    // Ocultar información del usuario
+                    document.getElementById("user-info").style.display = "none";
+
+                    // Mostrar el botón de iniciar sesión
+                    document.getElementById("login-google").style.display = "inline-block";
+                }
+            } catch (error) {
+                console.error("Error obteniendo la información del usuario:", error);
+            }
+        }
+
+        // Función para cerrar sesión
+        async function cerrarSesion() {
+            try {
+                const response = await fetch('/logout');
+                if (response.ok) {
+                    window.location.href = '/'; // Redirigir a la página principal
+                }
+            } catch (error) {
+                console.error("Error cerrando sesión:", error);
+            }
+        }
+
+        // Llamar las funciones al cargar la página
+        obtenerPrecioDolar();
+        obtenerUsuario();
+    </script>
 </body>
 </html>
