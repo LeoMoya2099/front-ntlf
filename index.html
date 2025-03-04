@@ -16,82 +16,46 @@
                 <button id="crear-cuenta" onclick="window.location.href='crear_cuenta.html'">Crear cuenta</button>
                 <button id="entrar-cuenta" onclick="window.location.href='entrar.html'">Entrar a la cuenta</button>
                 <button id="borrar-cuenta" onclick="window.location.href='borrar.html'">Borrar una cuenta</button>
-                
+
                 <h1>Precio del Dólar en MXN</h1>
                 <p id="precioDolar">Cargando...</p>
                 <p id="fechaActualizacion"></p>
+
+                <script>
+                    async function obtenerPrecioDolar() {
+    try {
+        const API_KEY = "929be70cef5bb0c8b3d28a0c";
+        const response = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
+        const data = await response.json();
+
+        if (data.result === "success") {
+            // Obtener el valor de 1 USD en MXN desde el objeto conversion_rates
+            const precioDolar = data.conversion_rates.MXN;
+            
+            // Convertir el timestamp de la última actualización a una fecha legible
+            const ultimaActualizacion = new Date(data.time_last_update_utc).toLocaleString();
+
+            document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
+            document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
+        } else {
+            document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
+            document.getElementById("fechaActualizacion").innerText = "";
+        }
+    } catch (error) {
+        document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
+        document.getElementById("fechaActualizacion").innerText = "";
+    }
+}
+
+
+                    obtenerPrecioDolar(); // Llamar la función cuando se cargue la página
+                </script>
 
             </div>
         </div>
     </main>
 
-    <div class="container">
-        <h1>Convertir Pesos a Dólares</h1>
-        <form id="converter-form">
-            <label for="pesos">Cantidad de Pesos:</label>
-            <input type="number" id="pesos" name="pesos" placeholder="Ingresa los pesos" required>
-            <button type="submit">Convertir</button>
-        </form>
-
-        <div id="result" class="hidden">
-            <p><strong>Precio del dólar:</strong> <span id="precioDolarResultado"></span> MXN</p>
-            <p><strong>Equivalente en dólares:</strong> <span id="dolares"></span> USD</p>
-            <p><strong>Última actualización:</strong> <span id="fecha"></span></p>
-        </div>
-
-        <div id="error-message" class="error hidden">
-            <p><strong>Error:</strong> Por favor ingresa una cantidad de pesos válida.</p>
-        </div>
-    </div>
-
-    <script>
-        // Función para obtener el precio del dólar desde el backend
-        async function obtenerPrecioDolar() {
-            try {
-                const response = await fetch('/dolar');  // Hacer la solicitud al backend
-                const data = await response.json();
-
-                if (data.success) {
-                    const precioDolar = data.precioDolar;
-                    const ultimaActualizacion = new Date(data.fecha).toLocaleString();
-
-                    document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
-                    document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
-
-                    // Guardar el valor del precio para realizar la conversión de pesos a dólares
-                    document.getElementById('precioDolarResultado').innerText = precioDolar;
-
-                    // Llamar a la función para convertir pesos a dólares cuando se envíe el formulario
-                    document.getElementById('converter-form').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const pesos = document.getElementById('pesos').value;
-
-                        if (!pesos || isNaN(pesos) || pesos <= 0) {
-                            document.getElementById('error-message').classList.remove('hidden');
-                            document.getElementById('result').classList.add('hidden');
-                        } else {
-                            const dolares = (parseFloat(pesos) / precioDolar).toFixed(2);
-                            document.getElementById('dolares').innerText = dolares;
-                            document.getElementById('fecha').innerText = ultimaActualizacion;
-
-                            document.getElementById('error-message').classList.add('hidden');
-                            document.getElementById('result').classList.remove('hidden');
-                        }
-                    });
-
-                } else {
-                    document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-                    document.getElementById("fechaActualizacion").innerText = "";
-                }
-            } catch (error) {
-                document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-                document.getElementById("fechaActualizacion").innerText = "";
-            }
-        }
-
-        // Llamar a la función cuando la página cargue
-        obtenerPrecioDolar();
-    </script>
+    <!-- Ruta actualizada para el archivo JavaScript -->
+    <script src="/index.js"></script>
 </body>
 </html>
-
