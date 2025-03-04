@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Ruta actualizada para el archivo CSS -->
     <link rel="stylesheet" type="text/css" href="/styles.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BCG</title>
@@ -19,63 +21,61 @@
                 <p id="precioDolar">Cargando...</p>
                 <p id="fechaActualizacion"></p>
 
-                <!-- Conversión de Pesos a Dólares -->
-                <h2>Convertir Pesos a Dólares</h2>
-                <input type="number" id="cantidadPesos" placeholder="Ingrese cantidad en MXN">
-                <button onclick="convertirPesosADolares()">Convertir</button>
-                <p id="resultadoConversion"></p>
-
                 <script>
                     async function obtenerPrecioDolar() {
-                        try {
-                            const API_KEY = "929be70cef5bb0c8b3d28a0c";
-                            const response = await fetch(https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD);
-                            const data = await response.json();
+        try {
+            const API_KEY = "929be70cef5bb0c8b3d28a0c";
+            const response = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
+            const data = await response.json();
 
-                            if (data.success) {
-                                const precioDolar = data.precioDolar;
-                                const ultimaActualizacion = new Date(data.fecha).toLocaleString();
+            if (data.result === "success") { // Corregido: La API externa usa "result" en lugar de "success"
+                const precioDolar = data.conversion_rates.MXN; // Obtiene el valor correcto
+                const ultimaActualizacion = new Date(data.time_last_update_utc).toLocaleString();
 
-                                document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
-                                document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
-                            } else {
-                                document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-                            }
-                        } catch (error) {
-                            document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
-                        }
-                    }
+                document.getElementById("precioDolar").innerText = `1 USD = ${precioDolar} MXN`;
+                document.getElementById("fechaActualizacion").innerText = `Última actualización: ${ultimaActualizacion}`;
+            } else {
+                throw new Error("Respuesta inválida de la API");
+            }
+        } catch (error) {
+            console.error("Error al obtener el precio del dólar:", error);
+            document.getElementById("precioDolar").innerText = "Error al obtener el precio.";
+            document.getElementById("fechaActualizacion").innerText = "";
+        }
+    }
 
-                    async function convertirPesosADolares() {
-                        const cantidadPesos = parseFloat(document.getElementById("cantidadPesos").value);
-                        if (isNaN(cantidadPesos) || cantidadPesos <= 0) {
-                            document.getElementById("resultadoConversion").innerText = "Ingrese un número válido.";
-                            return;
-                        }
+    async function convertirPesosADolares() {
+        const cantidadPesos = parseFloat(document.getElementById("cantidadPesos").value);
+        if (isNaN(cantidadPesos) || cantidadPesos <= 0) {
+            document.getElementById("resultadoConversion").innerText = "Ingrese una cantidad válida en MXN.";
+            return;
+        }
 
-                        try {
-                            const response = await fetch("/dolar");
-                            const data = await response.json();
+        try {
+            const response = await fetch("/dolar"); // Llamada al backend
+            const data = await response.json();
 
-                            if (data.success) {
-                                const precioDolar = data.precioDolar;
-                                const dolares = cantidadPesos / precioDolar;
-                                document.getElementById("resultadoConversion").innerText = `${cantidadPesos} MXN = ${dolares.toFixed(2)} USD`;
-                            } else {
-                                document.getElementById("resultadoConversion").innerText = "Error al obtener el precio.";
-                            }
-                        } catch (error) {
-                            document.getElementById("resultadoConversion").innerText = "Error al convertir.";
-                        }
-                    }
+            if (data.success) {
+                const precioDolar = data.precioDolar;
+                const dolares = cantidadPesos / precioDolar;
+                document.getElementById("resultadoConversion").innerText = `${cantidadPesos} MXN = ${dolares.toFixed(2)} USD`;
+            } else {
+                throw new Error("Datos inválidos desde el backend");
+            }
+        } catch (error) {
+            console.error("Error en la conversión:", error);
+            document.getElementById("resultadoConversion").innerText = "Error al convertir. Intenta de nuevo.";
+        }
+    }
 
-                    obtenerPrecioDolar();
+    obtenerPrecioDolar(); // Llamar la función cuando se cargue la página
                 </script>
 
             </div>
         </div>
     </main>
 
+    <!-- Ruta actualizada para el archivo JavaScript -->
     <script src="/index.js"></script>
 </body>
 </html>
